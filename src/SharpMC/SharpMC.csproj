@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{437E9A74-4ADA-4D7C-9743-74FA091D9642}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpMC</RootNamespace>
+    <AssemblyName>SharpMC</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;FN_USE_DOUBLES</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="API\IPlayerFactory.cs" />
+    <Compile Include="Blocks\Block.cs" />
+    <Compile Include="Blocks\BlockAir.cs" />
+    <Compile Include="Blocks\BlockFactory.cs" />
+    <Compile Include="Blocks\BlockIds.cs" />
+    <Compile Include="ConnectionFactory.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="MCNetConnection.cs" />
+    <Compile Include="MinecraftServer.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="DefaultPlayerFactory.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerInfo.cs" />
+    <Compile Include="Util\BlockCoordinates.cs" />
+    <Compile Include="Util\ChatHelper.cs" />
+    <Compile Include="Util\ChunkCoordinates.cs" />
+    <Compile Include="Util\Encryption.cs" />
+    <Compile Include="Util\Encryption\AsnKeyBuilder.cs" />
+    <Compile Include="Util\Encryption\AsnKeyParser.cs" />
+    <Compile Include="Util\Encryption\BerDecodeError.cs" />
+    <Compile Include="Util\Encryption\BigInteger.cs" />
+    <Compile Include="Util\FastNoise.cs" />
+    <Compile Include="Util\Gamemode.cs" />
+    <Compile Include="Util\MathHelper.cs" />
+    <Compile Include="Util\MinecraftNoise.cs" />
+    <Compile Include="Util\NibbleArray.cs" />
+    <Compile Include="Util\NoiseGeneratorOctaves.cs" />
+    <Compile Include="Util\Noise\CellNoise.cs" />
+    <Compile Include="Util\Noise\Noisegen.cs" />
+    <Compile Include="Util\Noise\OpenSimplex.cs" />
+    <Compile Include="Util\Noise\Perlin.cs" />
+    <Compile Include="Util\Noise\Simplex.cs" />
+    <Compile Include="Util\Noise\SimplexOctaveGenerator.cs" />
+    <Compile Include="Util\PlayerLocation.cs" />
+    <Compile Include="Util\RandomExtension.cs" />
+    <Compile Include="Util\VariableValueArray.cs" />
+    <Compile Include="Util\VectorHelper.cs" />
+    <Compile Include="Util\VoronoiNoise.cs" />
+    <Compile Include="Util\VoronoiOctaveGenerator.cs" />
+    <Compile Include="World\ChunkCache.cs" />
+    <Compile Include="World\ChunkColumn.cs" />
+    <Compile Include="World\ChunkSection.cs" />
+    <Compile Include="World\EntityManager.cs" />
+    <Compile Include="World\Generators\FlatWorldGenerator.cs" />
+    <Compile Include="World\Generators\IWorldGenerator.cs" />
+    <Compile Include="World\Level.cs" />
+    <Compile Include="World\LevelManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpMC.Network\SharpMC.Network.csproj">
+      <Project>{2e400200-5c8c-4bfb-b903-b6848ab12824}</Project>
+      <Name>SharpMC.Network</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

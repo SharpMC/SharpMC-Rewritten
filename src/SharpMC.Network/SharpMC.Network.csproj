@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E400200-5C8C-4BFB-B903-B6848AB12824}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpMC.Network</RootNamespace>
+    <AssemblyName>SharpMC.Network</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="crypto, Version=1.8.5520.19156, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BouncyCastle.Crypto.1.8.0-beta4\lib\net40\crypto.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="zlib.net, Version=1.0.3.0, Culture=neutral, PublicKeyToken=47d7877cb3620160">
+      <HintPath>..\packages\zlib.net.1.0.4.0\lib\zlib.net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConnectionState.cs" />
+    <Compile Include="Direction.cs" />
+    <Compile Include="Events\ConnectionAcceptedEventArgs.cs" />
+    <Compile Include="Events\ConnectionClosedEventArgs.cs" />
+    <Compile Include="Events\ConnectionConfirmedEventArgs.cs" />
+    <Compile Include="Events\IncomingConnectionEventArgs.cs" />
+    <Compile Include="Events\NetConnectionCreatedEventArgs.cs" />
+    <Compile Include="Events\PacketReceivedEventArgs.cs" />
+    <Compile Include="Framework\IPacket.cs" />
+    <Compile Include="IncomingConnection.cs" />
+    <Compile Include="NetConfiguration.cs" />
+    <Compile Include="NetConnection.cs" />
+    <Compile Include="NetConnectionFactory.cs" />
+    <Compile Include="NetServer.cs" />
+    <Compile Include="Packet.cs" />
+    <Compile Include="Packets\Handshake\HandshakePacket.cs" />
+    <Compile Include="Packets\Login\EncryptionRequestPacket.cs" />
+    <Compile Include="Packets\Login\EncryptionResponsePacket.cs" />
+    <Compile Include="Packets\Login\LoginStartPacket.cs" />
+    <Compile Include="Packets\Login\LoginSuccessPacket.cs" />
+    <Compile Include="Packets\Login\SetCompressionPacket.cs" />
+    <Compile Include="Packets\MCPacketFactory.cs" />
+    <Compile Include="Packets\Packet.cs" />
+    <Compile Include="Packets\PacketId.cs" />
+    <Compile Include="Packets\Play\ChatMessagePacket.cs" />
+    <Compile Include="Packets\Play\ChunkDataPacket.cs" />
+    <Compile Include="Packets\Play\ClientSettings.cs" />
+    <Compile Include="Packets\Play\JoinGamePacket.cs" />
+    <Compile Include="Packets\Play\KeepAlivePacket.cs" />
+    <Compile Include="Packets\Play\PlayerListItemPacket.cs" />
+    <Compile Include="Packets\Play\PlayerLookPacket.cs" />
+    <Compile Include="Packets\Play\PlayerPosition.cs" />
+    <Compile Include="Packets\Play\PlayerPositionAndLookPacket.cs" />
+    <Compile Include="Packets\Play\SpawnPlayer.cs" />
+    <Compile Include="Packets\Play\UnloadChunk.cs" />
+    <Compile Include="Packets\Status\PingPacket.cs" />
+    <Compile Include="Packets\Status\RequestPacket.cs" />
+    <Compile Include="Packets\Status\ResponsePacket.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtocolType.cs" />
+    <Compile Include="Util\MinecraftStream.cs" />
+    <Compile Include="Util\PacketFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
