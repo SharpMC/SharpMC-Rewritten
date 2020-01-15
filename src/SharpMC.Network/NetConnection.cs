@@ -7,12 +7,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Ionic.Zlib;
 using log4net;
 using SharpMC.Network.Events;
 using SharpMC.Network.Packets;
 using SharpMC.Network.Packets.Handshake;
 using SharpMC.Network.Util;
-using zlib;
 
 #endregion
 
@@ -113,8 +113,8 @@ namespace SharpMC.Network
 	    protected void InitEncryption(byte[] sharedKey)
 	    {
 		    SharedSecret = sharedKey;
-			_readerStream.InitEncryption(SharedSecret);
-			_sendStream.InitEncryption(SharedSecret);
+			_readerStream.InitEncryption(SharedSecret, false);
+			_sendStream.InitEncryption(SharedSecret, true);
 		    EncryptionInitiated = true;
 	    }
 
@@ -344,29 +344,29 @@ namespace SharpMC.Network
 		    }
 	    }
 
-		public static void CompressData(byte[] inData, out byte[] outData)
-		{
-			using (MemoryStream outMemoryStream = new MemoryStream())
-			using (ZOutputStream outZStream = new ZOutputStream(outMemoryStream, zlibConst.Z_DEFAULT_COMPRESSION))
-			using (Stream inMemoryStream = new MemoryStream(inData))
-			{
-				CopyStream(inMemoryStream, outZStream);
-				outZStream.finish();
-				outData = outMemoryStream.ToArray();
-			}
-		}
+	    public static void CompressData(byte[] inData, out byte[] outData)
+	    {
+		    using (MemoryStream outMemoryStream = new MemoryStream())
+		    {
+			    using (ZlibStream outZStream = new ZlibStream(outMemoryStream, CompressionMode.Compress, CompressionLevel.Default, true))
+			    {
+				    outZStream.Write(inData, 0, inData.Length);
+			    }
+			    outData = outMemoryStream.ToArray();
+		    }
+	    }
 
-		public static void DecompressData(byte[] inData, out byte[] outData)
-		{
-			using (MemoryStream outMemoryStream = new MemoryStream())
-			using (ZOutputStream outZStream = new ZOutputStream(outMemoryStream))
-			using (Stream inMemoryStream = new MemoryStream(inData))
-			{
-				CopyStream(inMemoryStream, outZStream);
-				outZStream.finish();
-				outData = outMemoryStream.ToArray();
-			}
-		}
+	    public static void DecompressData(byte[] inData, out byte[] outData)
+	    {
+		    using (MemoryStream outMemoryStream = new MemoryStream())
+		    {
+			    using (ZlibStream outZStream = new ZlibStream(outMemoryStream, CompressionMode.Decompress, CompressionLevel.Default, true))
+			    {
+				    outZStream.Write(inData, 0, inData.Length);
+			    }
+			    outData = outMemoryStream.ToArray();
+		    }
+	    }
 
 		public static void CopyStream(System.IO.Stream input, System.IO.Stream output)
 		{

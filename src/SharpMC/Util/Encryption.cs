@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
-using CSInteropKeys;
+using SharpMC.Util.Encryption;
 
 namespace SharpMC.Util
 {
-	public class Encryption
+	public class EncryptionHolder
 	{
 		private RSACryptoServiceProvider Rsa { get; }
 		private RSAParameters _privateKey;
@@ -13,7 +13,7 @@ namespace SharpMC.Util
 
 		public byte[] PublicKey { get; }
 
-		public Encryption()
+		public EncryptionHolder()
 		{
 			CspParameters csp = new CspParameters
 			{
@@ -23,8 +23,8 @@ namespace SharpMC.Util
 			};
 
 
-			Rsa = new RSACryptoServiceProvider(1024, csp);
-
+		//	Rsa = new RSACryptoServiceProvider(1024, csp);
+			Rsa = new RSACryptoServiceProvider(1024);
 			_privateKey = Rsa.ExportParameters(true);
 			_publicKey = Rsa.ExportParameters(false);
 

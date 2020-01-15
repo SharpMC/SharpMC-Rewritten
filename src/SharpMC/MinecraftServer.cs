@@ -19,7 +19,7 @@ namespace SharpMC
 
 		private NetServer Server { get; }
 		public ServerInfo Info { get; }
-		public Encryption RsaEncryption { get; }
+		public EncryptionHolder RsaEncryption { get; }
 
 		public IPlayerFactory PlayerFactory { get; set; }
 		public LevelManager LevelManager { get; }
@@ -49,7 +49,7 @@ namespace SharpMC
 
 			Log.Info("Generating RSA keypair...");
 			//RsaEncryption = null;
-			RsaEncryption = new Encryption();
+			RsaEncryption = new EncryptionHolder();
 		}
 
 		public void Start()

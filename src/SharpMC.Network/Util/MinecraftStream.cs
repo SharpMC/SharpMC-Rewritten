@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Text;
@@ -33,7 +34,7 @@ namespace SharpMC.Network.Util
 			
 		}
 
-		public void InitEncryption(byte[] key)
+		public void InitEncryption(byte[] key, bool write)
 		{
 			EncryptCipher = new BufferedBlockCipher(new CfbBlockCipher(new AesEngine(), 8));
 			EncryptCipher.Init(true, new ParametersWithIV(
@@ -91,17 +92,29 @@ namespace SharpMC.Network.Util
 
 		public byte[] Read(int length)
 		{
+			//byte[] d = new byte[length];
+			//Read(d, 0, d.Length);
+			//return d;
+
+			SpinWait s = new SpinWait();
 			int read = 0;
 
 			var buffer = new byte[length];
-			while (read < buffer.Length && !CancelationToken.IsCancellationRequested)
+			while (read < buffer.Length && !CancelationToken.IsCancellationRequested && s.Count < 25) //Give the network some time to catch up on sending data, but really 25 cycles should be enough.
 			{
 				int oldRead = read;
-				read += this.Read(buffer, read, length - read);
+
+				int r = this.Read(buffer, read, length - read);
+				if (r < 0) //No data read?
+				{
+					break;
+				}
+
+				read += r;
 
 				if (read == oldRead)
 				{
-					Thread.Sleep(1);
+					s.SpinOnce();
 				}
 				if (CancelationToken.IsCancellationRequested) throw new ObjectDisposedException("");
 			}
@@ -249,14 +262,61 @@ namespace SharpMC.Network.Util
 			return IPAddress.NetworkToHostOrder(BitConverter.ToInt64(l, 0));
 		}
 
-		public Vector3 ReadPosition()
+		public ulong ReadULong()
+		{
+			var l = Read(8);
+			return NetworkToHostOrder(BitConverter.ToUInt64(l, 0));
+		}
+
+        public Vector3 ReadPosition()
 		{
 			var val = ReadLong();
 			var x = Convert.ToSingle(val >> 38);
-			var y = Convert.ToSingle((val >> 26) & 0xFFF);
-			var z = Convert.ToSingle(val << 38 >> 38);
-			return new Vector3(x, y, z);
+			var y = Convert.ToSingle(val & 0xFFF);
+			var z = Convert.ToSingle((val << 38 >> 38) >> 12);
+
+			/*if (x >= (2^25))
+			{
+				x -= 2^26;
+			}
+
+			if (y >= (2^11))
+			{
+				y -= 2^12;
+			}
+
+			if (z >= (2^25))
+			{
+				z -= 2^26;
+			}*/
+
+            return new Vector3(x, y, z);
 		}
+
+	/*	public SlotData ReadSlot()
+		{
+			bool present = ReadBool();
+			if (!present) return null;
+
+			int id = ReadVarInt();
+			byte count = 0;
+			short damage = 0;
+			NbtCompound nbt = null;
+
+			
+				count = (byte)ReadByte();
+			//	damage = ReadShort();
+				nbt = ReadNbtCompound();
+			
+
+			SlotData slot = new SlotData();
+			slot.Count = count;
+			slot.Nbt = nbt;
+			slot.ItemID = id;
+			slot.ItemDamage = damage;
+
+			return slot;
+		}*/
 
 		private double NetworkToHostOrder(byte[] data)
 		{
@@ -291,12 +351,19 @@ namespace SharpMC.Network.Util
 				Array.Reverse(net);
 			return BitConverter.ToUInt16(net, 0);
 		}
+		private ulong NetworkToHostOrder(ulong network)
+		{
+			var net = BitConverter.GetBytes(network);
+			if (BitConverter.IsLittleEndian)
+				Array.Reverse(net);
+			return BitConverter.ToUInt64(net, 0);
+		}
 
-		#endregion
+        #endregion
 
-		#region Writer
+        #region Writer
 
-		public void Write(byte[] data)
+        public void Write(byte[] data)
 		{
 			this.Write(data, 0, data.Length);
 		}
@@ -306,9 +373,14 @@ namespace SharpMC.Network.Util
 			var x = Convert.ToInt64(position.X);
 			var y = Convert.ToInt64(position.Y);
 			var z = Convert.ToInt64(position.Z);
-			var toSend = ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF);
+			long toSend = ((x & 0x3FFFFFF) << 38) | ((z & 0x3FFFFFF) << 12) | (y & 0xFFF);
 			WriteLong(toSend);
 		}
+
+	    /*public void WritePosition(BlockCoordinates pos)
+	    {
+            WritePosition(new Vector3(pos.X, pos.Y, pos.Z));
+	    }*/
 
 		public int WriteVarInt(int value)
 		{
@@ -389,7 +461,12 @@ namespace SharpMC.Network.Util
 			Write(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(data)));
 		}
 
-		public void WriteUuid(Guid uuid)
+		public void WriteULong(ulong data)
+		{
+			Write(HostToNetworkOrderLong(data));
+		}
+
+        public void WriteUuid(Guid uuid)
 		{
 			var guid = uuid.ToByteArray();
 			var long1 = new byte[8];
@@ -399,6 +476,15 @@ namespace SharpMC.Network.Util
 			Write(long1);
 			Write(long2);
 		}
+
+		public Guid ReadUuid()
+		{
+			var long1 = Read(8);
+			var long2 = Read(8);
+
+			return new Guid(long1.Concat(long2).ToArray());
+		}
+
 
 		private byte[] HostToNetworkOrder(double d)
 		{
@@ -420,9 +506,19 @@ namespace SharpMC.Network.Util
 			return bytes;
 		}
 
-		#endregion
+		private byte[] HostToNetworkOrderLong(ulong host)
+		{
+			var bytes = BitConverter.GetBytes(host);
 
-		private object _disposeLock = new object();
+			if (BitConverter.IsLittleEndian)
+				Array.Reverse(bytes);
+
+			return bytes;
+		}
+
+        #endregion
+
+        private object _disposeLock = new object();
 		private bool _disposed = false;
 		protected override void Dispose(bool disposing)
 		{
@@ -447,5 +543,37 @@ namespace SharpMC.Network.Util
 				Monitor.Exit(_disposeLock);
 			}
 		}
+
+		/*public NbtCompound ReadNbtCompound()
+		{
+			NbtTagType t = (NbtTagType) ReadByte();
+			if (t != NbtTagType.Compound) return null;
+			Position--;
+
+            NbtFile file = new NbtFile() { BigEndian = true, UseVarInt = false };
+
+			file.LoadFromStream(this, NbtCompression.None);
+
+			return (NbtCompound) file.RootTag;
+		}
+
+		public void WriteNbtCompound(NbtCompound compound)
+		{
+			NbtFile f = new NbtFile(compound) { BigEndian = true, UseVarInt = false};
+			f.SaveToStream(this, NbtCompression.None);
+			
+			//WriteByte(0);
+		}
+
+		public ChatObject ReadChatObject()
+		{
+			string raw = ReadString();
+			if (ChatObject.TryParse(raw, out ChatObject result))
+			{
+				return result;
+			}
+
+			return new ChatObject(raw);
+		}*/
 	}
 }
